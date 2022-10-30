@@ -41,7 +41,6 @@ def demo_australie():
     st.subheader("Clément Soullard, Stanley, Moulaye, Théo Porcher")
 
     ### Add a picture
-    st.write("Below is a picture of the Titanic:")
     st.image("australie-climat.jpg",width=400)
 
 
@@ -60,43 +59,55 @@ def demo_australie():
 
     ### Showing code
     st.text("importing dataset with the folowing command: ")
-    with st.echo(): 
-        df = pd.read_csv(dataset_path, parse_dates=['Date'])
-        df['month'] = pd.to_datetime(df['Date']).dt.month
+    #with st.echo(): 
+    #    df = pd.read_csv(dataset_path, parse_dates=['Date'])
+    #    df['month'] = pd.to_datetime(df['Date']).dt.month
+    df = pd.read_csv(dataset_path, parse_dates=['Date'])
+    df['month'] = pd.to_datetime(df['Date']).dt.month
 
 
     ### Showing the data
     if st.checkbox("Showing the data") :
-        #line_to_plot = st.slider("select le number of lines to show", min_value=3, max_value=df.shape[0])
-        st.dataframe(df.head())
+         st.dataframe(df.head())
     locations=list(df.Location.unique())
     locations.sort()
     
     #st.dataframe(locations)
     location=st.sidebar.selectbox("Location",locations)
     
-    st.text('Class distribution with seaborn')
-   # st.set_option('deprecation.showPyplotGlobalUse', False)
-   
     stationsmeteos=pd.DataFrame.from_dict(locationsCoords, orient='index')
     #stationsmeteos=stationsmeteos.loc[location,:]
+    
     st.write(stationsmeteos)
     gdf = gpd.GeoDataFrame(
     stationsmeteos, geometry=gpd.points_from_xy(stationsmeteos[1], stationsmeteos[0]))
 
     world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
 
-    # We restrict to South America. 
+
+    # We restrict to Australia. 
+    st.markdown('## Carte de l\'Australie')
+    
+    fig, ax = plt.subplots()
+    ax.set_xlim(110,150)
+    ax.set_ylim(-40,-10)
     ax = world[world.name == 'Australia'].plot(
     color='white', edgecolor='black',figsize=(18,12))
     gdf.plot(ax=ax, color='red')
-    st.pyplot()
+    st.pyplot(fig)
 
+    st.markdown('## Diagramme de pluviométrie')
 
-    barplot = sns.barplot('month', 'Rainfall',data=df[df.Location==location],color='b')
+    fig1, ax = plt.subplots()
+    #rainfalldf=df[df.Location==location].groupby("month")["Rainfall"].mean()
+    #st.dataframe(rainfalldf.transpose())
+    barplot = sns.barplot(data=df[df.Location==location], x="month", y="Rainfall",color='b')
     barplot.set_ylim(bottom=0, top=20);
-    st.pyplot()
+    st.pyplot(fig1)
+
+    st.markdown('## Diagramme de température')
     
+    fig2, ax = plt.subplots()
     temperature=df[df['Location']==location][['Date','MaxTemp','MinTemp']]
     temperature["rollavgmax"]=bn.move_mean(temperature.MaxTemp,30)
     temperature["rollavgmin"]=bn.move_mean(temperature.MinTemp,30)
@@ -105,7 +116,7 @@ def demo_australie():
     plt.plot(temperatureYear.rollavgmax,label="Maxima",color='r')
     plt.plot(temperatureYear.rollavgmin,label="Minima",color='b')
 
-    st.pyplot()
+    st.pyplot(fig2)
 
 
 
