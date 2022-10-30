@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: streamlit
+  labels:
+   app.kubernetes.io/name: streamlit-proxy
+spec:
+  volumes:
+    - name: streamlit-storage
+      persistentVolumeClaim:
+        claimName: streamlit-claim
+  containers:
+  - name: streamlitcontainer
+    image: localhost:32000/streamlit:6
+    ports:
+      - containerPort: 8501
+        name: "http-server"
+    volumeMounts:
+      - mountPath: "/app"
+        name: streamlit-storage
