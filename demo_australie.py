@@ -11,6 +11,7 @@ import pandas as pd
 import seaborn as sns 
 import geopandas as gpd
 import streamlit as st 
+import joblib
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.patches import Rectangle 
@@ -21,33 +22,21 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 import bottleneck as bn
 
-# Custom function
-# st.cache is used to load the function into memory
-@st.cache
-def train_model(model_choisi, X_train, y_train, X_test, y_test) :
-    if model_choisi == 'Regression Logisitic' : 
-        model = LogisticRegression()
-    elif model_choisi == 'Decision Tree' : 
-        model = DecisionTreeClassifier()
-    elif model_choisi == 'KNN' : 
-        model = KNeighborsClassifier()
-    model.fit(X_train, y_train)
-    score = model.score(X_test, y_test)
-    return score
+
 
 def demo_australie():
 
     ### Create Title
     st.title("Etude d'un prédicteur de pluie")
     st.header("Sur le continent autralien")
-    st.subheader("Clément Soullard, Stanley, Moulaye, Théo Porcher")
+    st.write("Clément Soullard, Stanley, Moulaye, Théo Porcher")
 
     ### Add a picture
-    st.image("australie-climat.jpg",width=400)
+    st.image("rain.jpg",width=400)
 
-
+    model=joblib.load('simplified_model.sav')
     ### using Markdown
-    st.markdown("### Prédiction de la pluie à partir des données de la veilles")
+    st.markdown("### Prédiction de la pluie à partir des données de la veille")
 
     ### reading dataset
     # Normally, you will store all the necessary path and env variables in a .env file
@@ -61,7 +50,7 @@ def demo_australie():
 
 
     ### Showing code
-    st.text("importing dataset with the folowing command: ")
+    #st.text("importing dataset with the folowing command: ")
     #with st.echo(): 
     #    df = pd.read_csv(dataset_path, parse_dates=['Date'])
     #    df['month'] = pd.to_datetime(df['Date']).dt.month
@@ -76,8 +65,8 @@ def demo_australie():
 
 
     ### Showing the data
-    if st.checkbox("Showing the data") :
-         st.dataframe(df.head())
+    #if st.checkbox("Showing the data") :
+    #     st.dataframe(df.head())
     locations=list(df.Location.unique())
     locations.sort()
     
@@ -97,7 +86,8 @@ def demo_australie():
     #st.write(gdfcity)
 
     # We restrict to Australia. 
-    st.markdown('## Carte de l\'Australie')
+    st.markdown('## Analyse par localité')
+    st.markdown('Observez les indicateurs clé en sélectionnant la localité à droite')
     
     fig, ((ax1,ax),(ax2,ax3)) = plt.subplots(2,2)
     world[world.name == 'Australia'].plot(
@@ -158,5 +148,22 @@ def demo_australie():
         st.dataframe(df.isna().sum())
 
 
-    ### Preprocessing 
+    ### Preprocessing
+
+    with st.form("my_form"):
+       st.write("Quelle météo fera-t-il demain ?")
+       Humidity3pm_val = st.slider("Humidity3pm")
+       Sunshine_val = st.slider("Sunshine",min_value=0.0,max_value=14.0,step=.2)
+       varhumidity_val = st.slider("varhumidity",min_value=-100,max_value=100)
+       Pressure9am_val = st.slider("Pressure9am",min_value=970,max_value=1050)
+       Rainfall_val = st.slider("Rainfall",min_value=0,max_value=200)
+       WindGustSpeed_val = st.slider("WindGustSpeed",min_value=0,max_value=140)
+       Pressure3p_val = st.slider("Pressure3p",min_value=970,max_value=1050)
+       submitted = st.form_submit_button("Submit")
+       if submitted:
+           inputvalue=np.array([Humidity3pm_val,Sunshine_val,varhumidity_val,Pressure9am_val,Rainfall_val,WindGustSpeed_val,Pressure3p_val]).reshape(1,-1)
+           out=any(model.predict(inputvalue)>0)
+           st.write("Pleuvra-t-il demain ?",( "Oui"if out else "Non"))
+
+  
 
