@@ -29,7 +29,7 @@ df['RainTomorrow'].replace({'No': 0}, inplace=True)
 df['RainTomorrow'].replace({'Yes': 1}, inplace=True)
 # df.dropna(inplace=True)
 
-twelve = ['J', 'F', 'Ms', 'Av', 'Mi', 'Jn', 'Jt', 'At', 'S', 'O', 'N', 'D']
+twelve = ['Janv', 'Fev', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Dec']
 df_as = df[df['Location'] == 'AliceSprings']
 df_ad = df[df['Location'] == 'Adelaide']
 df_da = df[df['Location'] == 'Darwin']
@@ -187,6 +187,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(["Adelaide", "Alice Springs", "Cobar", "D
 
 with tab1:
     st.header('Adelaide : climat tempéré')
+    st.image('images/aerial_view_Adelaide.jpg')
     fig1 = plt.figure(figsize = (10,8))
     plt.subplot(221)
     ax = sns.barplot(data = df_ad.groupby('month').mean('MaxTemp'), x = twelve, y = 'MaxTemp', color = 'orange', label = "Maximales")
@@ -211,6 +212,7 @@ with tab1:
 
 with tab2:
     st.header('Alice Springs : climat désertique')
+    st.image('images/480px-Alice_Springs,_2015_(01).jpg')
     fig2 = plt.figure(figsize = (10,8))
     plt.subplot(221)
     ax = sns.barplot(data = df_as.groupby('month').mean('MaxTemp'), x = twelve, y = 'MaxTemp', color = 'orange', label = "Maximales")
@@ -235,6 +237,7 @@ with tab2:
 
 with tab3:
     st.header('Cobar : climat de plaine aride')
+    st.image('images/640px-Aerial_view_of_Cobar,New_South_Wales,_2009-03-06.jpg')
     fig2 = plt.figure(figsize = (10,8))
     plt.subplot(221)
     ax = sns.barplot(data = df_co.groupby('month').mean('MaxTemp'), x = twelve, y = 'MaxTemp', color = 'orange', label = "Maximales")
@@ -259,6 +262,7 @@ with tab3:
 
 with tab4:
     st.header('Sydney : climat subtropical')
+    st.image('images/vue sydney.webp')
     fig4 = plt.figure(figsize = (10,8))
     plt.subplot(221)
     ax = sns.barplot(data = df_sy.groupby('month').mean('MaxTemp'), x = twelve, y = 'MaxTemp', color = 'orange', label = "Maximales")
@@ -284,6 +288,7 @@ with tab4:
 
 with tab5:
     st.header('Darwin : climat tropical')
+    st.image('images/Darwin.jpg')
     fig3 = plt.figure(figsize = (10,8))
     plt.subplot(221)
     ax = sns.barplot(data = df_da.groupby('month').mean('MaxTemp'), x = twelve, y = 'MaxTemp', color = 'orange', label = "Maximales")

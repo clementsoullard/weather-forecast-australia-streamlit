@@ -148,6 +148,6 @@ with st.form("my_form"):
         out=any(model.predict(inputvalue)>0)
         st.write("Pleuvra-t-il demain ?",( "Oui"if out else "Non"))
         if out == True:
-            st.image("gifs/rainy.gif")
+            st.image("images/rainy.gif")
         else :
-            st.image("gifs/sunny.gif")
+            st.image("images/sunny.gif")
