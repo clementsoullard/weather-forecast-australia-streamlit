@@ -22,4 +22,4 @@ st.write("Clément Soullard, Stanley Armel, Hamza Moulaye, Théo Porcher")
 
 ### Add a picture
 st.image("rain.jpg",width=400)
-model=joblib.load(".\simplified_model.sav")
+model=joblib.load("simplified_model.sav")
