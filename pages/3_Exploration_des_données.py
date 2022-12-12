@@ -13,7 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 import bottleneck as bn
-from datetime import date
+from datetime import date,datetime
 import time
 
 ## reading dataset
@@ -67,21 +67,25 @@ gdfcity=gdf.loc[location]
 st.markdown('## Analyse par localité')
 st.markdown('Observez les indicateurs clé en sélectionnant la localité à droite')
 
-fig, (ax1,ax,ax2,ax3,ax4,ax5,ax6) = plt.subplots(7,1)
+fig, (ax1,ax,ax2,ax3) = plt.subplots(4,1)
+fig2, (ax4,ax5,ax6) = plt.subplots(3,1)
 world[world.name == 'Australia'].plot(
 color='white', edgecolor='black',ax=ax1)
 fig.set_figheight(30)
 fig.set_figwidth(10)
+fig2.set_figheight(30)
+fig2.set_figwidth(10)
+
 ax1.set_xlim(110,160)
 ax1.set_ylim(-40,-10)
-ax1.set_title('Localisation')
+ax1.set_title('Localisation '+location)
     
 gdf.plot(ax=ax1, color='red')
 ax1.scatter(gdfcity[1],gdfcity[0], color='blue',s=60)   
 
 barplot = sns.barplot(data=df[df.Location==location],ax=ax, x="month", y="Rainfall",color='b')
 barplot.set_ylim(bottom=0, top=20);
-ax.set_title('Pluviométrie (mm/jour)')
+ax.set_title('Pluviométrie (mm/jour), '+location)
 
 #st.pyplot(fig1)
 
@@ -95,7 +99,7 @@ temperature['dayofyear']=temperature['Date'].apply(lambda x: x.dayofyear)
 temperatureYear=temperature.groupby('dayofyear')['rollavgmax','rollavgmin'].agg('mean')
 ax2.plot(temperatureYear.rollavgmax,label="Maxima",color='r')
 ax2.plot(temperatureYear.rollavgmin,label="Minima",color='b')
-ax2.set_title('Températures annuelles')
+ax2.set_title('Températures annuelles, '+location)
 
 dffiltered=df.loc[df['Location'] == location]
 winds=pd.get_dummies(dffiltered['WindGustDir'])
@@ -117,7 +121,7 @@ for dirvent,w in bringrain.iterrows():
     ax3.add_patch(rectangle)
 ax3.set_xlim([-1.5,1.5])
 ax3.set_ylim([-1,1])
-ax3.set_title("Corrélation pluie/vent")
+ax3.set_title("Corrélation pluie/vent, "+location)
 
 
 pressure3pm=df[df['Location']==location][['Date','Pressure3pm','Humidity3pm','MaxTemp']]
@@ -141,40 +145,45 @@ pressure=pd.concat([pressure3pm]).sort_values('Date')
 mindate=pressure.Date.min()
 maxdate=pressure.Date.max()
 
-ax4.set_xlim([date.fromisoformat('2013-03-01'),date.fromisoformat('2013-06-01')])
+datedebut=date.fromisoformat('2013-03-01')
+datefin=date.fromisoformat('2013-06-01')
+ax4.set_xlim([datedebut,datefin])
 ax4.plot(pressure.Date,pressure.Pressure,color="g")
 ax4.scatter(rain.Date,rain.RainToday)
-ax4.set_title("Pression et pluie")
+ax4.set_title("Pression et pluie, "+location+ ", " +str(datedebut)+ " -- "+ str(datefin))
 
 
 ax5.set_xlim([date.fromisoformat('2013-03-01'),date.fromisoformat('2013-06-01')])
 ax5.plot(pressure.Date,pressure.Humidity)
 ax5.scatter(rain.Date,rain.RainToday/10-90)
-ax5.set_title("Humidité et Pluie")
+ax5.set_title("Humidité et Pluie, "+location+ ", " +str(datedebut)+ " -- "+ str(datefin))
 
 ax6.set_xlim([date.fromisoformat('2013-03-01'),date.fromisoformat('2013-06-01')])
 ax6.plot(pressure.Date,pressure.MaxTemp,color="r")
 ax6.scatter(rain.Date,rain.RainToday/15 -50)
-ax6.set_title("Température et Pluie")
+ax6.set_title("Température et Pluie, "+location+ ", " +str(datedebut)+ " -- "+ str(datefin))
 
-
+st.pyplot(fig)
 plot_spot = st.empty()
 with plot_spot:
-    st.pyplot(fig)
+    st.pyplot(fig2)
 
 
 #fig = px.line(pressure, x=pressure.Date, y=pressure.Pressure)
 
 with st.form("my_form"):
-    st.write("Date observation pression")
-    startdateslide = st.slider("Date de début",value=[0,100])
+    st.write("Date observation ")
+    startdateslide = st.slider("Date de début",mindate.to_pydatetime(),maxdate.to_pydatetime())
     submitted = st.form_submit_button("Submit")
     if submitted:
-        timstampgraphstart=date.fromtimestamp(mindate.timestamp()+(maxdate.timestamp()-mindate.timestamp())*startdateslide[0]/100)
-        timstampgraphsend=date.fromtimestamp(mindate.timestamp()+(maxdate.timestamp()-mindate.timestamp())*startdateslide[1]/100)
+        timstampgraphstart=startdateslide
+        timstampgraphsend=date.fromtimestamp(startdateslide.timestamp()+3*30*24*60*60)
         ax4.set_xlim([timstampgraphstart,timstampgraphsend])
+        ax4.set_title("Pression et pluie, "+location+ ", " +str(timstampgraphstart)+ " -- "+ str(timstampgraphsend))
         ax5.set_xlim([timstampgraphstart,timstampgraphsend])
+        ax5.set_title("Humidité et Pluie, "+location+ ", " +str(timstampgraphstart)+ " -- "+ str(timstampgraphsend))
         ax6.set_xlim([timstampgraphstart,timstampgraphsend])
+        ax6.set_title("Température et Pluie, "+location+ ", " +str(timstampgraphstart)+ " -- "+ str(timstampgraphsend))
         with plot_spot:
-            st.pyplot(fig)
+            st.pyplot(fig2)
         st.write('Observez l''intervalle '+str(timstampgraphstart)+ " -- "+ str(timstampgraphsend))
