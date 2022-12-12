@@ -9,25 +9,17 @@ Created on Thu Jul 21 10:04:22 2022
 # Core Pkg
 import streamlit as st
 
-# Custom modules
-from streamlit_base import bases_streamlit # Basic streamlit function
-from demo_australie import demo_australie # Basic ML web app with stremlit
+st.markdown("# Main page")
+st.sidebar.markdown("# Main page")
 
 
-def main():
+#from demo_australie import demo_australie # Basic ML web app with stremlit
+st.title("Etude d'un prédicteur de pluie")
+st.header("Sur le continent autralien")
+st.write("Clément Soullard, Stanley Armel, Hamza Moulaye, Théo Porcher")
 
-    # List of pages
-   # liste_menu = ["bases streamlit", "demo_ML"]
-
-    # Sidebar
-  #  menu = st.sidebar.selectbox("selectionner votre activité", liste_menu)
-
-    # Page navigation
- #   if menu == liste_menu[1]:
- #       bases_streamlit()
- #   else:
-    demo_australie()
+### Add a picture
+st.image("rain.jpg",width=400)
 
 
-if __name__ == '__main__':
-    main()
+
